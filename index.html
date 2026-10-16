@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
+<title>基隆市騎樓開放機車停車查詢</title>
+<style>
+:root{color-scheme:light dark;--pg:#f2f2f7;--sheet:#f2f2f7;--card:#fff;--tx:#1c1c1e;--sec:#8e8e93;--fill:rgba(118,118,128,.12);--tint:#007aff;--tintbg:rgba(0,122,255,.12);--ok:#248a3d;--okbg:rgba(52,199,89,.16);--wn:#c93400;--wnbg:rgba(255,149,0,.16)}
+@media (prefers-color-scheme:dark){:root{--pg:#1c1c1e;--sheet:#1c1c1e;--card:#2c2c2e;--tx:#fff;--sec:#98989f;--fill:rgba(118,118,128,.24);--tint:#0a84ff;--tintbg:rgba(10,132,255,.2);--ok:#30d158;--okbg:rgba(48,209,88,.18);--wn:#ff9f0a;--wnbg:rgba(255,159,10,.18)}*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:var(--pg)}
+body{color:var(--tx);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang TC","Noto Sans TC","Microsoft JhengHei","Helvetica Neue",sans-serif;-webkit-tap-highlight-color:transparent}
+button,a,input,.card{touch-action:manipulation}
+#map{position:fixed;inset:0;z-index:1;width:100%;height:100%;border:0}
+#chip{position:fixed;z-index:4;left:12px;top:calc(env(safe-area-inset-top,0px) + 10px);padding:7px 13px;border-radius:999px;background:var(--sheet);box-shadow:0 2px 12px rgba(0,0,0,.18);font-weight:600;font-size:14px}
+#chip b{color:var(--tint)}
+#side{contain:layout style;position:fixed;z-index:5;left:0;right:0;bottom:0;height:90%;display:flex;flex-direction:column;background:var(--sheet);border-radius:22px 22px 0 0;box-shadow:0 -6px 28px rgba(0,0,0,.2);will-change:transform;transform:translate3d(0,50%,0)}
+#side.anim{transition:transform .4s cubic-bezier(.22,.9,.28,1)}
+#grab{flex:none;height:34px;display:flex;justify-content:center;align-items:center;touch-action:none;cursor:grab}
+#grab i{width:38px;height:5px;border-radius:3px;background:var(--sec);opacity:.5}
+.sh{flex:none;padding:0 14px 8px}
+#ttl{display:none;font-size:26px;font-weight:700;margin:14px 2px 10px}
+.sf{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:12px;padding:0 12px;height:40px}
+.sf input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--tx);font:inherit;font-size:17px}
+.pills{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
+.pills::-webkit-scrollbar{display:none}
+.pills button{flex:none;border:0;background:var(--fill);color:var(--tx);padding:7px 14px;border-radius:999px;font:inherit;font-size:14px;font-weight:500;cursor:pointer}
+.pills button.on{background:var(--tint);color:#fff}
+#scr{contain:content;-webkit-overflow-scrolling:touch;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 14px calc(16px + env(safe-area-inset-bottom,0px))}
+#prog{font-size:12px;color:var(--sec);margin:0 2px 6px}
+#msg{font-size:14px;padding:10px 14px;border-radius:12px;margin-bottom:10px;background:var(--fill);color:var(--sec)}
+#msg.ok{background:var(--okbg);color:var(--ok)}#msg.no{background:var(--wnbg);color:var(--wn)}
+.card{background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05);cursor:pointer}
+.card.on{box-shadow:0 0 0 2px var(--tint)}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.b{color:#fff;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
+button.no{border:0;background:var(--tintbg);color:var(--tint);border-radius:999px;padding:5px 12px;min-height:30px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.r{font-size:17px;font-weight:600}
+.s{font-size:12px;color:var(--sec);margin-left:6px}
+.t{color:var(--sec);font-size:14px;margin-top:2px;word-break:break-all}
+.card a{color:var(--tint);font-size:14px;text-decoration:none;display:inline-block;margin-top:6px}
+footer{font-size:12px;color:var(--sec);padding:6px 2px 0}
+@media (max-width:899px){@media (min-width:900px){#side{left:14px;right:auto;width:400px;top:calc(env(safe-area-inset-top,0px) + 14px);bottom:14px;height:auto;border-radius:22px;transform:none!important;box-shadow:0 8px 40px rgba(0,0,0,.25)}#grab,#chip{display:none}#ttl{display:block}}
+
+.pt{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.pt button{border:0;background:var(--tintbg);color:var(--tint);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.pt button.on{background:var(--tint);color:#fff}
+</style>
+</head>
+<body>
+<div id="ph" style="position:fixed;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;padding:20px 20px 55%;text-align:center;color:var(--sec);background:var(--fill)">地圖載入中…<br>若長時間空白，請改用瀏覽器（Chrome／Safari）開啟此檔，<br>或點卡片的「在 Google 地圖開啟」</div>
+<iframe id="map" title="地圖" style="background:transparent" allowfullscreen></iframe>
+<div id="chip">🛵 騎樓停車 <b>82</b> 處</div>
+<section id="side">
+<div id="grab"><i></i></div>
+<div class="sh">
+<h1 id="ttl">基隆騎樓機車停車</h1>
+<label class="sf"><span>🔍</span><input id="q" type="search" placeholder="路名或門牌，例如：中正路150" autocomplete="off" enterkeyhint="search"></label>
+<div class="pills" id="pills"></div>
+</div>
+<div id="scr"><div id="msg"></div><div id="list"></div><footer>資料整理自基隆市政府「騎樓開放機車停車」路段清單，實際以市府公告為準。地圖由 Google 地圖依門牌即時定位（需網路），不使用圖磚、不需等待定位；點「起／中／迄」可切換查看該路段不同門牌位置。</footer></div>
+</section>
+<script>
+// [路名, 顯示文字, 起號, 迄號]；順序即公告編號 1–82
+const D=[
+["仁愛區",[["孝四路","1號至30號",1,30],["港西街","13號至43號",13,43],["忠一路","7號至20號",7,20],["忠二路","1號至65號",1,65],["忠二路","2號至66號",2,66],["忠四路","32號至44號",32,44],["孝二路","21號至107號",21,107],["孝二路","42號至76號",42,76],["孝三路","13號至109號",13,109],["孝三路","14號至96號",14,96],["仁一路","187號至299號",187,299],["仁二路","1號至127號",1,127],["仁五路","1號至61號",1,61],["愛二路","3號至65號",3,65],["愛二路","24號至74號",24,74]]],
+["中正區",[["義一路","1號至111號",1,111],["義一路","2號至148號",2,148],["義二路","1號至215號",1,215],["義二路","2號至258號",2,258],["信一路","154號至177號",154,177],["信二路","272號至298號",272,298],["信三路","3號至36號",3,36],["信三路","4號至43號",4,43],["信四路","2號至24號",2,24],["信四路","5號至31號",5,31],["信五路","1號至59號",1,59],["信五路","2號至30號",2,30],["信六路","3號至33號",3,33],["信六路","4號至38號",4,38],["信七路","1號至19號",1,19],["信七路","2號至22號",2,22],["正義路","1號至73號",1,73],["正義路","2號至88號",2,88],["中正路","2號至164號",2,164],["中正路","341號至623號",341,623],["中正路","482號至822號",482,822],["武昌街","1號至23號",1,23],["武昌街","2號至140號",2,140],["祥豐街","711號至853號",711,853],["中正路","97號至339號",97,339],["中正路","186號至478號",186,478],["祥豐街","1號至565號",1,565],["祥豐街","2號至216號",2,216]]],
+["信義區",[["信一路","1號至150號",1,150],["信二路","1號至281號",1,281],["信二路","2號至16號",2,16],["義四路","1號至27號",1,27],["義四路","2號至26號",2,26],["深溪路","沿線兩側騎樓"],["深澳坑路","166號（凱撒社區前騎樓）",166,166],["東信路","40號至162號",40,162],["東信路","5號至81之2號",5,81],["東信路","37號至45號",37,45],["深澳坑路","8之41號至8之50號、10之6號、10之7號"],["義六路","15號、17號",15,17]]],
+["七堵區",[["福一街","53號至99號",53,99],["福一街","58號至110號",58,110],["福二街","25號至107號",25,107],["福二街","82號至100號",82,100],["百一街","161號至173號",161,173]]],
+["暖暖區",[["源遠路","296號至300號",296,300],["源遠路","341號至349號",341,349],["暖暖街","102號至108號",102,108],["暖暖街","190號至194號",190,194],["東勢街","6至6之31號",6,6]]],
+["安樂區",[["麥金路","2號至66號",2,66],["麥金路","160號至220號",160,220],["樂利三街32巷","37至47號",37,47],["安樂路一段","137號至177號",137,177],["安一路","250號至260號",250,260],["安樂路二段","82號至132號",82,132],["安樂路二段","131號至235號",131,235],["安樂路一段","260號至278號",260,278]]],
+["中山區",[["成功二路","43號至63號",43,63],["復興路","317號至323號",317,323],["安一路","18號至42號",18,42],["安一路","71號至87號",71,87],["西定路","28號至40號",28,40],["中和路","164巷13至19號、16至26號、168巷13弄1至37號、167至198號之4"],["德安路","2-2號、2-3號、2-5號、2-6號、2-10號、2-11號、2-12號、2-14號、2-15號"],["中和路","164巷1號、166號、166-1至166-6號"],["成功二路","65號",65,65]]]
+];
+const COL={仁愛區:"#ff2d55",中正區:"#007aff",信義區:"#34c759",七堵區:"#ff9500",暖暖區:"#af52de",安樂區:"#30b0c7",中山區:"#5856d6"};
+let n=0;const rows=[];
+for(const [dist,l] of D)for(const [road,txt,lo,hi] of l)
+  rows.push({id:++n,dist,road,txt,lo,hi,side:lo==null?"":(lo%2==hi%2?(lo%2?"單號側":"雙號側"):"")});
+const norm=s=>s.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/臺/g,"台").replace(/\s+/g,"").replace(/號$/,"");
+const inRange=(r,x)=>r.lo!=null&&x>=r.lo&&x<=r.hi&&(r.lo%2!=r.hi%2||x%2==r.lo%2);
+rows.forEach(r=>{r.h=norm(r.dist+r.road+r.txt);r.n=norm(r.dist+r.road)});
+let dist="all",cur=null;
+const $=id=>document.getElementById(id);
+// 地圖：Google 地圖嵌入（依地址定位）
+const mapUrl=q=>"https://www.google.com/maps?hl=zh-TW&z=18&output=embed&q="+encodeURIComponent(q);
+const addr=(r,x)=>"基隆市"+r.dist+r.road+(x!=null?x+"號":"");
+const pts=r=>{if(r.lo==null)return[["路段",null]];if(r.lo==r.hi)return[["門牌",r.lo]];
+  let mid=Math.round((r.lo+r.hi)/2);if(mid%2!=r.lo%2)mid++;if(mid>r.hi)mid-=2;
+  return[["起",r.lo],["中",mid],["迄",r.hi]]};
+function show(q){const f=$("map");const u=mapUrl(q);if(f.dataset.u!==u){f.dataset.u=u;f.src=u}}
+show("基隆市");
+const pills=$("pills");
+[["all","全部 (82)"],...D.map(([d,l])=>[d,`${d} (${l.length})`])].forEach(([v,t])=>{
+  const b=document.createElement("button");b.textContent=t;if(v=="all")b.className="on";
+  b.onclick=()=>{dist=v;pills.querySelectorAll("button").forEach(x=>x.className=x==b?"on":"");render()};
+  pills.appendChild(b)});
+function render(){
+  const q=norm($("q").value),msg=$("msg");let out=rows.filter(r=>dist=="all"||r.dist==dist),cls="",text="";
+  const m=q.match(/^(\D.*?)(\d+)$/);
+  if(m){
+    const name=m[1],x=+m[2],byName=out.filter(r=>r.n.includes(name));
+    out=byName.filter(r=>inRange(r,x));
+    if(out.length){cls="ok";text=`✅ ${name}${x}號 位於 ${out.length} 個開放路段內`;show("基隆市"+out[0].dist+out[0].road+x+"號")}
+    else if(byName.length){cls="no";text=`${name}在清單中，但 ${x} 號不在開放範圍內（請以公告為準）`;out=byName}
+    else{cls="no";text=`清單中沒有「${name}」`}
+  }else{
+    if(q)out=out.filter(r=>r.h.includes(q));
+    text=`符合 ${out.length} 筆路段`;
+  }
+  msg.className=cls;msg.textContent=text;
+  $("list").innerHTML=out.map(r=>`<div class="card${cur===r.id?" on":""}" data-id="${r.id}"><div class="top"><span class="b" style="background:${COL[r.dist]}">${r.dist}</span><span class="s">編號 ${r.id}</span></div>
+<div><span class="r">${r.road}</span><span class="s">${r.side}</span></div><div class="t">${r.txt}</div>
+<div class="pt">${pts(r).map(([l,x])=>`<button data-id="${r.id}" data-x="${x==null?"":x}">📍 ${l}${x!=null&&l!="門牌"?" "+x:""}</button>`).join("")}</div>
+<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr(r,r.lo))}" target="_blank" rel="noopener">在 Google 地圖開啟 ↗</a></div>`).join("")
+    ||'<div class="card t">找不到符合的路段</div>';
+}
+$("list").addEventListener("click",e=>{
+  if(e.target.closest("a"))return;
+  const b=e.target.closest(".pt button"),c=e.target.closest(".card");if(!c)return;
+  const r=rows[c.dataset.id-1];let x=r.lo;
+  if(b){x=b.dataset.x===""?null:+b.dataset.x;c.querySelectorAll(".pt button").forEach(k=>k.classList.toggle("on",k==b))}
+  cur=r.id;document.querySelectorAll(".card.on").forEach(k=>k.classList.remove("on"));c.classList.add("on");
+  show(addr(r,x));snap(2);
+});
+const side=$("side"),isD=()=>matchMedia("(min-width:900px)").matches;
+let pos=1,H=0,Y=0,g0=null,raf=0,S=[0,0,0];
+const calc=()=>{H=side.offsetHeight;S=[0,H*.5,H-150]};
+const snaps=()=>S;
+const put=()=>{raf=0;side.style.transform=`translate3d(0,${Y}px,0)`};
+function snap(i,anim=true){if(isD())return;calc();pos=i;Y=S[i];side.classList.toggle("anim",anim);put()}
+const gr=$("grab");
+gr.addEventListener("pointerdown",e=>{calc();g0={y:e.clientY,Y,last:e.clientY,lt:e.timeStamp,v:0};gr.setPointerCapture(e.pointerId);side.classList.remove("anim");$("map").style.pointerEvents="none"});
+gr.addEventListener("pointermove",e=>{
+  if(!g0)return;
+  Y=Math.min(S[2],Math.max(0,g0.Y+e.clientY-g0.y));
+  g0.v=(e.clientY-g0.last)/Math.max(1,e.timeStamp-g0.lt);g0.last=e.clientY;g0.lt=e.timeStamp;
+  if(!raf)raf=requestAnimationFrame(put);
+});
+const endDrag=()=>{
+  if(!g0)return;const p=Y+g0.v*180;let b=0;
+  S.forEach((v,i)=>{if(Math.abs(v-p)<Math.abs(S[b]-p))b=i});g0=null;$("map").style.pointerEvents="";snap(b);
+};
+gr.addEventListener("pointerup",endDrag);gr.addEventListener("pointercancel",endDrag);
+addEventListener("resize",()=>snap(pos,false));
+snap(1,false);
+$("q").addEventListener("focus",()=>snap(0));
+let t;$("q").addEventListener("input",()=>{clearTimeout(t);t=setTimeout(render,150)});
+render();
+</script>
+</body>
+</html>
